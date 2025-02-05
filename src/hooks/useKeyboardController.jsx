@@ -1,0 +1,98 @@
+import { useState, useEffect } from "react";
+
+export function useKeyboardController() {
+    const [input, setInput] = useState({
+        x: 0,
+        y: 0,
+        isKeyPressed: false,
+        isJumping: false,
+    });
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            setInput((prev) => {
+                const newInput = { ...prev };
+                switch (event.key) {
+                    case "ArrowUp":
+                    case "w":
+                    case "W":
+                        newInput.y = 1;
+                        break;
+                    case "ArrowDown":
+                    case "s":
+                    case "S":
+                        newInput.y = -1;
+                        break;
+                    case "ArrowLeft":
+                    case "a":
+                    case "A":
+                        newInput.x = -1;
+                        break;
+                    case "ArrowRight":
+                    case "d":
+                    case "D":
+                        newInput.x = 1;
+                        break;
+
+                    case " ":
+                        if (!newInput.isJumping) {
+                            newInput.isJumping = true;
+                        }
+                        break;
+
+                    default:
+                        return prev;
+                }
+
+                newInput.isKeyPressed = newInput.x !== 0 || newInput.y !== 0;
+                return newInput;
+            });
+        };
+
+        const handleKeyUp = (event) => {
+            setInput((prev) => {
+                const newInput = { ...prev };
+                switch (event.key) {
+                    case "ArrowUp":
+                    case "w":
+                    case "W":
+                        if (newInput.y === 1) newInput.y = 0;
+                        break;
+                    case "ArrowDown":
+                    case "s":
+                    case "S":
+                        if (newInput.y === -1) newInput.y = 0;
+                        break;
+                    case "ArrowLeft":
+                    case "a":
+                    case "A":
+                        if (newInput.x === -1) newInput.x = 0;
+                        break;
+                    case "ArrowRight":
+                    case "d":
+                    case "D":
+                        if (newInput.x === 1) newInput.x = 0;
+                        break;
+                    case " ":
+                        newInput.isJumping = false;
+                        break;
+                    default:
+                        return prev;
+                }
+
+                newInput.isKeyPressed = newInput.x !== 0 || newInput.y !== 0;
+                return newInput;
+            });
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("keyup", handleKeyUp);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("keyup", handleKeyUp);
+        };
+    }, []);
+
+    return input;
+}
