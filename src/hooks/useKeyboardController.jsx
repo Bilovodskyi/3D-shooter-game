@@ -6,6 +6,7 @@ export function useKeyboardController() {
         y: 0,
         isKeyPressed: false,
         isJumping: false,
+        isFiring: false,
     });
 
     useEffect(() => {
@@ -39,7 +40,11 @@ export function useKeyboardController() {
                             newInput.isJumping = true;
                         }
                         break;
-
+                    case "b":
+                        if (!newInput.isFiring) {
+                            newInput.isFiring = true;
+                        }
+                        break;
                     default:
                         return prev;
                 }
@@ -75,6 +80,9 @@ export function useKeyboardController() {
                         break;
                     case " ":
                         newInput.isJumping = false;
+                        break;
+                    case "b":
+                        newInput.isFiring = false;
                         break;
                     default:
                         return prev;

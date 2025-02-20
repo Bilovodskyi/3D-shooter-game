@@ -2,29 +2,35 @@ import { Environment, Loader } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { GameMap } from "./GameMap";
-import { insertCoin, myPlayer, onPlayerJoin } from "playroomkit";
 import Controller from "./Controller";
 import { Physics } from "@react-three/rapier";
+import BotController from "./BotController";
+import EndOfTheGame from "./EndOfTheGame";
+import StartGameDialog from "./StartGameDialog";
+import Bullet from "./Bullet";
+import HelperMap from "./HelperMap";
 
 export default function ViewCanvas() {
-    const [players, setPlayers] = useState([]);
     const lightRef = useRef();
 
-    const start = async () => {
-        await insertCoin();
+    const [startGame, setStartGame] = useState(true);
+    const [bots, setBots] = useState([]);
+    const [bullets, setBullets] = useState([]);
+    const [playerPosition, setPlayerPosition] = useState({ x: 0, y: 0, z: 0 });
+    const [health, setHealth] = useState(5);
+    const [endOfTheGameModal, setEndOfTheGameModal] = useState({
+        show: false,
+        win: false,
+    });
 
-        onPlayerJoin((state) => {
-            const newPlayer = { state };
-            state.setState("health", 100);
-            state.setState("deaths", 0);
-            state.setState("kills", 0);
-            setPlayers((players) => [...players, newPlayer]);
-            state.onQuit(() => {
-                setPlayers((players) =>
-                    players.filter((p) => p.state.id !== state.id)
-                );
-            });
-        });
+    const onFire = (bullet) => {
+        setBullets((prevBullets) => [...prevBullets, bullet]);
+    };
+
+    const onHit = (bulletId) => {
+        setBullets((prevBullets) =>
+            prevBullets.filter((b) => b.id !== bulletId)
+        );
     };
 
     useEffect(() => {
@@ -35,10 +41,47 @@ export default function ViewCanvas() {
     }, []);
 
     useEffect(() => {
-        start();
-    }, []);
+        let timerId;
+        if (bots.length > 0 && bots.every((bot) => bot.health === 0)) {
+            setEndOfTheGameModal({ show: true, win: true });
+            timerId = setTimeout(() => {
+                setHealth(5);
+                setEndOfTheGameModal({
+                    show: false,
+                    win: false,
+                });
+                setStartGame(true);
+            }, 2000);
+        } else if (health === 0) {
+            setEndOfTheGameModal((prev) => ({ ...prev, show: true }));
+            timerId = setTimeout(() => {
+                setHealth(5);
+                setEndOfTheGameModal({
+                    show: false,
+                    win: false,
+                });
+                setStartGame(true);
+            }, 2000);
+        }
+        return () => {
+            if (timerId) {
+                clearTimeout(timerId);
+            }
+        };
+    }, [bots, health]);
+
+    if (startGame) {
+        return (
+            <StartGameDialog setStartGame={setStartGame} setBots={setBots} />
+        );
+    }
+
     return (
         <>
+            {endOfTheGameModal.show && (
+                <EndOfTheGame win={endOfTheGameModal.win} />
+            )}
+            <HelperMap x={playerPosition.x} z={playerPosition.z} />
             <Canvas
                 style={{
                     height: "100vh",
@@ -59,31 +102,53 @@ export default function ViewCanvas() {
                             castShadow
                             intensity={1.2}
                             position={[50, 100, -50]}
-                            // Increase the frustum size to cover the whole map
-                            shadow-camera-left={-100}
-                            shadow-camera-right={100}
-                            shadow-camera-top={100}
-                            shadow-camera-bottom={-100}
+                            shadow-camera-left={-200}
+                            shadow-camera-right={200}
+                            shadow-camera-top={200}
+                            shadow-camera-bottom={-200}
                             shadow-camera-near={0.1}
                             shadow-camera-far={200}
                             shadow-mapSize-width={4096}
                             shadow-mapSize-height={4096}
                             shadow-bias={-0.0001}
                         />
-                        {/* <OrbitControls /> */}
+                        {/* <OrbitControls
+                            autoRotate
+                            autoRotateSpeed={0.1}
+                            scale={-4}
+                        /> */}
 
-                        {players.map(({ state }, idx) => {
-                            return (
-                                <Controller
-                                    key={state.id}
-                                    position-y={15}
-                                    state={state}
-                                    userPlayer={state.id === myPlayer().id}
-                                />
-                            );
-                        })}
+                        <Controller
+                            position-y={2}
+                            onFire={onFire}
+                            health={health}
+                            setHealth={setHealth}
+                            onPlayerPositionChange={(newPosition) =>
+                                setPlayerPosition(newPosition)
+                            }
+                        />
+
+                        {bots.map((bot) => (
+                            <BotController
+                                key={bot.id}
+                                position-y={2}
+                                onFire={onFire}
+                                health={bot.health}
+                                id={bot.id}
+                                setBots={setBots}
+                                playerPosition={playerPosition}
+                            />
+                        ))}
+                        {bullets.map((bullet) => (
+                            <Bullet
+                                key={bullet.id}
+                                {...bullet}
+                                bulletId={bullet.id}
+                                onHit={onHit}
+                                type={bullet.type}
+                            />
+                        ))}
                         <GameMap />
-
                         <Environment
                             files="/hdr/lebombo_1k.hdr"
                             environmentIntensity={0.75}

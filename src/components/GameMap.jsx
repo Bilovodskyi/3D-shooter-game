@@ -3,7 +3,7 @@ import { useGLTF } from "@react-three/drei";
 import { RigidBody } from "@react-three/rapier";
 
 export function GameMap(props) {
-    const map = useGLTF("/city.glb");
+    const map = useGLTF("/city_V2.glb");
 
     useEffect(() => {
         map.scene.traverse((children) => {
@@ -15,7 +15,10 @@ export function GameMap(props) {
     }, []);
 
     return (
-        <RigidBody colliders="trimesh" type="fixed">
+        <RigidBody
+            colliders="trimesh"
+            type="fixed"
+            userData={{ type: "obstacle" }}>
             <primitive object={map.scene} />;
         </RigidBody>
     );
