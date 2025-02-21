@@ -7,11 +7,11 @@ https://github.com/user-attachments/assets/2604af72-ba25-4852-ae18-ab77c54489a0
 
 # Technologies ⚙️
 
--React
--react-three/fiber
--react-three/drei
--react-three/rapier
--blender
+- React
+- react-three/fiber
+- react-three/drei
+- react-three/rapier
+- blender
 
 
 # About ℹ️
@@ -23,7 +23,7 @@ Welcome to version 2 of the project! Here’s a quick rundown of what's new comp
 - **3D City Map in Blender:**  
   The biggest change in v2 is the updated map. Check out the video below to see the side-by-side comparison. The new map has better textures, bug fixes, and a flatter design. Plus, I've added a bunch of new elements to make the game experience even more fun.
 
-https://github.com/user-attachments/assets/14211d38-0273-43c0-981b-e2f75da1365e
+https://github.com/user-attachments/assets/eceee033-2b9f-430b-90ad-b7b0abf5dd13
 
 
 - In the second version, I added shooting functionality and bots with custom logic. Instead of using a library, I decided to create my own bot behavior for a bit of fun. The bots operate in two states:
