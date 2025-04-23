@@ -1,5 +1,3 @@
-## Did you like the project? Give it a star!
-
 # Demo 🎬
 
 Below you can find a demo of this project. Currently, I am rendering the map in the browser using react-three-fiber, adding physics (gravity and collisions) with the react-three/rapier library, and including a player. (I'm just learning Blender, and my skills aren't yet sufficient to create characters in Blender, so I found one on the internet. I promise to improve this in future projects. 😉)
