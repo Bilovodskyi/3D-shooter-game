@@ -13,7 +13,6 @@ export default function HelperMap({ x, z }) {
     }
 
     const { imageX, imageY } = mapCoordsToImage(x, z);
-    console.log([imageX, imageY]);
     return (
         <>
             <div

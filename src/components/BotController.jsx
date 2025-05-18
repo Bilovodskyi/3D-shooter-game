@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Soldier } from "./Soldier";
 import { CapsuleCollider, RigidBody, vec3 } from "@react-three/rapier";
 import { Billboard, Text } from "@react-three/drei";
@@ -29,14 +29,7 @@ export default function BotController({
 
     const randomDirectionRef = useRef(new THREE.Vector3(0, 0, 0));
 
-    useEffect(() => {
-        if (botRigidBodyRef.current) {
-            botRigidBodyRef.current.applyImpulse(
-                { x: 20000, y: 0, z: 30000 },
-                true
-            );
-        }
-    }, []);
+    const impulse = new THREE.Vector3();
 
     useEffect(() => {
         if (health === 0) {
@@ -110,11 +103,12 @@ export default function BotController({
             if (timeToNextDirectionRef.current <= 0) {
                 setNewDirectionFunction();
             }
-            const impulse = {
-                x: randomDirectionRef.current.x * MOVEMENT_SPEED * delta,
-                y: 0,
-                z: randomDirectionRef.current.z * MOVEMENT_SPEED * delta,
-            };
+            impulse.set(
+                randomDirectionRef.current.x * MOVEMENT_SPEED * delta,
+                0,
+                randomDirectionRef.current.z * MOVEMENT_SPEED * delta
+            );
+
             botRigidBodyRef.current.applyImpulse(impulse, true);
 
             if (botControllerRef.current) {
@@ -133,6 +127,7 @@ export default function BotController({
             <RigidBody
                 colliders={false}
                 ref={botRigidBodyRef}
+                position={[80, 0, 170]}
                 linearDamping={10}
                 type={"dynamic"}
                 lockRotations

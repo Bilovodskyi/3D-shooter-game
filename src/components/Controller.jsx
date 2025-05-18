@@ -5,6 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import { Billboard, CameraControls, Text } from "@react-three/drei";
 import { useKeyboardController } from "../hooks/useKeyboardController";
 import { v4 as uuidv4 } from "uuid";
+import { Vector3 } from "three";
 
 const MOVEMENT_SPEED = 4000;
 const FIRE_RATE = 350;
@@ -25,6 +26,8 @@ export default function Controller({
     const { isKeyPressed, x, y, isJumping, isFiring } = useKeyboardController();
 
     const [animation, setAnimation] = useState("Idle");
+
+    const impulse = new Vector3();
 
     useEffect(() => {
         if (health === 0) {
@@ -63,11 +66,11 @@ export default function Controller({
                 setAnimation("Run");
             }
 
-            const impulse = {
-                x: x * MOVEMENT_SPEED * delta,
-                y: 0,
-                z: -y * MOVEMENT_SPEED * delta,
-            };
+            impulse.set(
+                x * MOVEMENT_SPEED * delta,
+                0,
+                -y * MOVEMENT_SPEED * delta
+            );
 
             rigidBodyRef.current.applyImpulse(impulse, true);
             controllerRef.current.rotation.y = Math.atan2(impulse.x, impulse.z);
